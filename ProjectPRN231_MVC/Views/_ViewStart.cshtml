@@ -1,0 +1,22 @@
+﻿@{
+    var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = ViewContext.RouteData.Values["action"].ToString();
+
+    if ((controllerName == "Authentication" && actionName == "Login") || (controllerName == "Authentication" && actionName == "Register"))
+    {
+        // Layout = "~/Views/Shared/_Layout.cshtml";  // Main layout for home page
+        Layout = null;  // Main layout for home page
+    }
+    // else
+    // {
+    //     Layout = "~/Views/Shared/_Layout.cshtml";
+    // }
+    // else if ((controllerName == "Home" && actionName == "Login") || (controllerName == "Home" && actionName == "Index"))
+    // {
+    //     Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    // }
+    // else
+    // {
+    //     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";  // Default layout for all other views
+    // }
+}

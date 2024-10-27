@@ -1,0 +1,324 @@
+﻿@using BusinessObject
+@model IEnumerable<BusinessObject.Product>
+@{
+    var pageSize = ViewBag.PageSize as int? ?? 0;
+    var currentPage = ViewBag.CurrentPage as int? ?? 0;
+    var totalPages = ViewBag.TotalPages as int? ?? 0;
+    var totalProducts = ViewBag.TotalProducts as int? ?? 0;
+    var categories = ViewBag.Categories as List<Category>;
+    var sortOrder = ViewBag.SortOrder as int? ?? 1;
+    var showPagination = ViewBag.ShowPagination == false ? false : true;
+    var categoryId = ViewBag.CategoryId as int?;
+    var minPrice = ViewBag.MinPrice as double?;
+    var maxPrice = ViewBag.MaxPrice as double?;
+
+    var totalPrice = ViewBag.TotalPrice as double? ?? 0;
+    var quantity = ViewBag.Quantity as int? ?? 0;
+}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Male_Fashion Template">
+    <meta name="keywords" content="Male_Fashion, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Male-Fashion | Template</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+          rel="stylesheet">
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+    <!-- Header Section Begin -->
+    <header class="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3">
+                    <div class="header__logo">
+                        <a asp-action="Home"><img src="/img/logo.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <nav class="header__menu mobile-menu">
+                        <ul>
+                            <li><a asp-action="Home">Home</a></li>
+                            <li class="active"><a asp-action="Shop">Shop</a></li>
+                            <li><a asp-action="MyCart">Shopping Cart</a></li>
+                            <li><a asp-action="MyCheckOut">Check Out</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="header__nav__option">
+                        <a asp-action="MyCart"><img src="/img/icon/cart.png" alt=""> <span>@quantity</span></a>
+                        <div class="price">$@totalPrice</div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas__open"><i class="fa fa-bars"></i></div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shop</h4>
+                        <div class="breadcrumb__links">
+                            <a asp-action="Home">Home</a>
+                            <span>Shop</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+    <!-- Shop Section Begin -->
+    <section class="shop spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="shop__sidebar">
+                        <div class="shop__sidebar__search">
+                            <form asp-action="Shop" method="get">
+    <!-- Keep existing query parameters (like categoryId, pageNumber, sortOrder) -->
+    @foreach (var queryParam in Context.Request.Query)
+    {
+        if (queryParam.Key != "productName")
+        {
+            <input type="hidden" name="@queryParam.Key" value="@queryParam.Value" />
+        }
+    }
+    <!-- New search parameter input -->
+    <input type="text" name="productName" placeholder="Search..." value="@Context.Request.Query["productName"]" />
+    <button type="submit"><span class="icon_search"></span></button>
+</form>
+                        </div>
+                        <div class="shop__sidebar__accordion">
+                            <div class="accordion" id="accordionExample">
+                                <div class="card">
+                                    <div class="card-heading">
+                                        <a data-toggle="collapse" data-target="#collapseOne">Categories</a>
+                                    </div>
+                                    <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                            <div class="shop__sidebar__categories">
+                                                <ul class="nice-scroll">
+                                                    @foreach(var category in categories)
+                                                    {
+                                                        <li><a href ="@Url.Action("Shop", new { categoryId = category.CategoryId })">@category.CategoryName</a></li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-heading">
+                                        <a data-toggle="collapse" data-target="#collapseThree">Filter Price</a>
+                                    </div>
+                                    <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                            <div class="shop__sidebar__price">
+                                                <ul>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 0, maxPrice = 50 })">$0.00 - $50.00</a></li>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 50, maxPrice = 100 })">$50.00 - $100.00</a></li>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 100, maxPrice = 150 })">$100.00 - $150.00</a></li>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 150, maxPrice = 200 })">$150.00 - $200.00</a></li>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 200, maxPrice = 250 })">$200.00 - $250.00</a></li>
+                                                    <li><a href="@Url.Action("Shop", new { minPrice = 250 })">250.00+</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="shop__product__option">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="shop__product__option__left">
+                                    <p>Showing @totalProducts results</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="shop__product__option__right">
+                                    <p>Sort by Price:</p>
+                                    <select id="sortOrder" onchange="sortProducts()">
+                                        @if (sortOrder == 1)
+                                        {
+                                            <option value="1" selected>Low To High</option>
+                                            <option value="2">High To Low</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="1">Low To High</option>
+                                            <option value="2" selected>High To Low</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @foreach(var product in Model)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" data-setbg="@product.ProductImage">
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>@product.ProductName</h6>
+                                        <a asp-action="AddToCart" asp-route-productId="@product.ProductId" class="add-cart">+ Add To Cart</a>
+                                        <h5>$@product.UnitPrice</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <!-- Display pagination controls only if there are multiple pages -->
+                    @if (showPagination)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="product__pagination">
+                                    @* @if (currentPage > 1)
+                                {
+                                <a class="page-link" href="@Url.Action("Shop", new { pageNumber = currentPage - 1 })">Previous</a>
+                                } *@
+
+                                    @for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        <a class="page-link" href="@Url.Action("Shop", new { pageNumber = i , pageSize = pageSize , sortOrder = sortOrder , categoryId = categoryId, minPrice = minPrice, maxPrice = maxPrice })">@i</a>
+                                    }
+
+                                    @* @if (currentPage < totalPages)
+                                {
+                                <a class="page-link" href="@Url.Action("Shop", new { pageNumber = currentPage + 1 })">Next</a>
+                                } *@
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Shop Section End -->
+    <!-- Footer Section Begin -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="footer__about">
+                        <div class="footer__logo">
+                            <a href="#"><img src="/img/footer-logo.png" alt=""></a>
+                        </div>
+                        <p>The customer is at the heart of our unique business model, which includes design.</p>
+                        <a href="#"><img src="/img/payment.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 offset-lg-1 col-md-3 col-sm-6">
+                    <div class="footer__widget">
+                        <h6>Shopping</h6>
+                        <ul>
+                            <li><a href="#">Clothing Store</a></li>
+                            <li><a href="#">Trending Shoes</a></li>
+                            <li><a href="#">Accessories</a></li>
+                            <li><a href="#">Sale</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6">
+                    <div class="footer__widget">
+                        <h6>Shopping</h6>
+                        <ul>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">Payment Methods</a></li>
+                            <li><a href="#">Delivary</a></li>
+                            <li><a href="#">Return & Exchanges</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 offset-lg-1 col-md-6 col-sm-6">
+                    <div class="footer__widget">
+                        <h6>NewLetter</h6>
+                        <div class="footer__newslatter">
+                            <p>Be the first to know about new arrivals, look books, sales & promos!</p>
+                            <form action="#">
+                                <input type="text" placeholder="Your email">
+                                <button type="submit"><span class="icon_mail_alt"></span></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+    <!-- Js Plugins -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+
+
+    <script>
+        function sortProducts() {
+            // Get the selected sort order
+            var sortOrder = document.getElementById("sortOrder").value;
+
+            // Get the current URL and split it into base URL and query string
+            var currentUrl = window.location.href;
+            var url = new URL(currentUrl);
+
+            // Update or add the sortOrder parameter
+            url.searchParams.set("sortOrder", sortOrder);
+
+            // Reload the page with the updated URL
+            window.location.href = url.href;
+        }
+    </script>
+</body>
+
+</html>
