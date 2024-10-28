@@ -25,6 +25,7 @@ namespace ProjectPRN231_API.Controllers
             newUser.AccountId = newAccount.AccountId;
             newUser.RoleId = 2;
             
+            
             userService.Create(newUser);
 
             return Ok(newAccount.AccountId);
@@ -38,7 +39,12 @@ namespace ProjectPRN231_API.Controllers
             {
                 return BadRequest("Username or password is incorrect!");
             }
-            return Ok(account);
+
+            var response = new LoginResponse();
+            response.AccountId = account.AccountId;
+            response.UserId = account.User!.UserId;
+
+            return Ok(response);
         }
 
         [HttpPut("forget-password")]
