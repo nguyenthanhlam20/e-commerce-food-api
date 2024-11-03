@@ -84,7 +84,10 @@ namespace Repository.implementations
             {
                 using (var context = new DBContext())
                 {
-                    account = context.Accounts.SingleOrDefault(a => a.Username.Equals(username) && a.Password.Equals(password) && a.IsActive == true);
+                    account = context.Accounts
+                        .Include(x => x.User)
+                        .SingleOrDefault(a => a.Username.Equals(username) && a.Password.Equals(password) && a.IsActive == true);
+
                 }
             }
             catch (Exception ex)
